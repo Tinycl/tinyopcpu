@@ -1,2 +1,2 @@
 # tinyopcpu
-go to read and write everything
+A driver which can go to read and write everything
