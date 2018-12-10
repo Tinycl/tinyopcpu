@@ -24,10 +24,10 @@
     </Inf>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="driver.c">
+    <ClCompile Include="tinyopcpu_oper.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="tinyopcpu_oper.c">
+    <ClCompile Include="driver.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

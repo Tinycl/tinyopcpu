@@ -21,7 +21,9 @@ extern "C" {
 	ULONG TinyOpCPU_WriteIOPort8(USHORT port, ULONG data);
 	ULONG TinyOpCPU_WriteIOPort16(USHORT port, ULONG data);
 	ULONG TinyOpCPU_WriteIOPort32(USHORT port, ULONG data);
-
+	ULONG TinyOpCPU_ReadMemory(ULONG AddressSpace, ULONGLONG Address, ULONG count, UCHAR *buf);
+	ULONG TinyOpCPU_ReadPhysMemory(ULONGLONG physaddr, ULONG count, UCHAR *buf);
+	ULONG TinyOpCPU_ReadVirtual(ULONGLONG virtaddr, ULONG count, UCHAR *buf);
 #ifdef __cplusplus
 }
 #endif

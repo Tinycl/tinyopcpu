@@ -48,3 +48,59 @@ NTSTATUS oper_io_write(PDEVICE_EXTENSION pfdo, ULONG *incount, PACKET_IO_WRITE *
 	*outcount = 0;			
 	return(STATUS_SUCCESS);
 }
+
+NTSTATUS oper_read_memory(PDEVICE_EXTENSION pfdo, ULONG *incount,PACKET_MEM_READ *in, ULONG *outcount, UCHAR *out)
+{
+	//PUCHAR dst = (PUCHAR)&out->value[0]; PACKET_MEM_READ_REPLY
+	PUCHAR dst = out;
+	ULONG datalen = in->count;
+	switch (in->AddressSpace) {
+		case 0: //physical memory
+		{
+			PUCHAR src;
+			PHYSICAL_ADDRESS pa;
+			pa.QuadPart = in->Address;
+			src = MmMapIoSpace(pa, datalen, MmNonCached); //nocached
+			if (src == NULL) {
+				src = MmMapIoSpace(pa, datalen, MmCached); //cached
+				if (src == NULL) {
+					src = MmMapIoSpace(pa, datalen, MmWriteCombined);//wc
+					if (src == NULL) {
+						DbgPrint("TinyOpCPU: invalid parameter\n");
+						return STATUS_INVALID_PARAMETER;
+					}
+				}
+			}
+			RtlCopyMemory(dst,src,datalen);
+			MmUnmapIoSpace(src,datalen);
+			*outcount = datalen;
+			break;
+		}
+		case 1: //kernel memory
+		{	
+			#pragma code_seg() //nonpage
+			//#pragma data_seg("PAGE") //nonpage
+			PUCHAR src = (PUCHAR)in->Address;
+			PMDL pmdl;
+			RtlFillMemory(dst,datalen,0);
+			pmdl = IoAllocateMdl(src,datalen,FALSE,FALSE,NULL);
+			if (pmdl) {
+				MmBuildMdlForNonPagedPool(pmdl);
+				pmdl->MdlFlags = pmdl->MdlFlags | MDL_MAPPED_TO_SYSTEM_VA;
+				RtlCopyMemory(dst, src, datalen);
+				IoFreeMdl(pmdl);
+				*outcount = datalen;
+				break;
+			}
+			else {
+				*outcount = 0;
+				return STATUS_INVALID_PARAMETER;
+			}
+			
+
+		}
+		default:
+			return STATUS_INVALID_PARAMETER;
+	}
+	return STATUS_SUCCESS;
+}

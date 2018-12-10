@@ -335,3 +335,40 @@ ULONG TinyOpCPU_WriteIOPort32(USHORT port, ULONG data)
 {
 	return TinyOpCPU_WriteIOPort(0, 32, port, data);
 }
+
+ULONG TinyOpCPU_ReadMemory(ULONG AddressSpace, ULONGLONG Address, ULONG count, UCHAR *buf)
+{
+	BOOL error;
+	DWORD ByteReturned;
+	PACKET_MEM_READ req;
+	req.Address = Address;
+	req.AddressSpace = AddressSpace;
+	req.count = count;
+	error = DeviceIoControl(TinyOpCPU_Handle,
+							IOCTL_READ_MEMORY,
+							&req,
+							sizeof(PACKET_MEM_READ),
+							buf,
+							count,
+							&ByteReturned,
+							NULL);
+	if (error == 0) {
+		error = GetLastError();
+	}
+	/*
+	unsigned char aa[256] = {0};
+	for (int k = 0; k < count; ++k) {
+		aa[k] = buf[k];
+	}
+	*/
+	return error;
+}
+
+ULONG TinyOpCPU_ReadPhysMemory(ULONGLONG physaddr, ULONG count, UCHAR *buf)
+{
+	return(TinyOpCPU_ReadMemory(0, physaddr, count, buf));
+}
+ULONG TinyOpCPU_ReadVirtual(ULONGLONG virtaddr, ULONG count, UCHAR *buf)
+{
+	return(TinyOpCPU_ReadMemory(1, virtaddr, count, buf));
+}

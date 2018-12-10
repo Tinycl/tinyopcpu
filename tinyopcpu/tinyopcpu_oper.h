@@ -8,5 +8,7 @@
 
 NTSTATUS oper_io_read(PDEVICE_EXTENSION pfdo, ULONG *incount, PACKET_IO_READ *in, ULONG *outcount, PACKET_IO_READ_REPLY *out);
 NTSTATUS oper_io_write(PDEVICE_EXTENSION pfdo, ULONG *incount, PACKET_IO_WRITE *in, ULONG *outcount, void *out);
+NTSTATUS oper_read_memory(PDEVICE_EXTENSION pfdo, ULONG *incount, PACKET_MEM_READ *in, ULONG *outcount, UCHAR *out);
+
 
 #endif

@@ -5,34 +5,50 @@ extern "C" {
 #endif
 
 #ifndef BOOLEAN
-	typedef unsigned char BOOLEAN;
+	#define  BOOLEAN unsigned char 
 #endif
 #ifndef UCHAR
-	typedef unsigned char UCHAR;
+	#define  UCHAR unsigned char 
 #endif
 #ifndef CHAR
-	typedef signed char CHAR;
+	#define CHAR signed char 
 #endif
 #ifndef USHORT
-	typedef unsigned short USHORT;
+	#define USHORT unsigned short 
 #endif
 #ifndef SHORT
-	typedef signed short SHORT;
+	#define SHORT signed short 
 #endif
 #ifndef ULONG
-	typedef unsigned long ULONG;
+	#define  ULONG unsigned long
 #endif
 #ifndef LONG
-	typedef signed long LONG;
+	#define  LONG signed long
 #endif
-/*
-#ifndef ULONGLONG
-	typedef unsigned long ULONGLONG;
+
+#ifdef _WIN64
+
+	#ifndef ULONGLONG
+		#define ULONGLONG unsigned long long
+	#endif
+
+	#ifndef LONGLONG
+		#define LONGLONG signed long long
+	#endif
+#else
+	#ifndef ULONGLONG
+	#define ULONGLONG unsigned long
+	#endif
+
+	#ifndef LONGLONG
+	#define LONGLONG signed long
 #endif
-#ifndef LONGLONG
-	typedef signed long LONGLONG;
+
 #endif
-*/
+
+
+
+//typedef unsigned long ULONGLONG;
 #ifndef _DATAVALUE_
 #define	_DATAVALUE_
 	typedef union {
@@ -44,8 +60,8 @@ extern "C" {
 #endif
 
 	/*
-	 * IOCTL_IO_READ
-	 */
+	* IOCTL_IO_READ
+	*/
 	typedef struct {
 		ULONG		cpu;
 		ULONG		bitsize;
@@ -56,7 +72,7 @@ extern "C" {
 	} PACKET_IO_READ_REPLY;
 
 	/*
-	 * IOCTL_IO_WRITE
+	* IOCTL_IO_WRITE
 	*/
 	typedef struct {
 		ULONG		cpu;
@@ -65,6 +81,17 @@ extern "C" {
 		DATAVALUE	value;
 	} PACKET_IO_WRITE;
 
+	/*
+	* IOCTL_MEM_READ
+	*/
+	typedef struct {
+		ULONG		AddressSpace;			//0=physical, 1=Kernel, 2=Other context
+		ULONGLONG	Address;
+		ULONG		count;
+	} PACKET_MEM_READ;
+	typedef struct {
+		UCHAR		value[1];
+	} PACKET_MEM_READ_REPLY;
 #ifdef  __cplusplus
 }
 #endif

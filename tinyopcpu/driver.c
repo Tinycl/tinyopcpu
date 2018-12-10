@@ -23,7 +23,7 @@ NTSTATUS DriverEntry(IN PDRIVER_OBJECT pDriverObject, IN PUNICODE_STRING pRegist
 	pfdo = pdeviceObject->DeviceExtension;
 	pfdo->self = pdeviceObject;
 	pfdo->nextStackDevice = NULL;
-	pdeviceObject->Flags |= DO_BUFFERED_IO;
+	//pdeviceObject->Flags |= DO_BUFFERED_IO;
 	ntstatus = IoCreateSymbolicLink(&dosName, &deviceName);
 	if (!NT_SUCCESS(ntstatus))
 	{
@@ -101,6 +101,12 @@ __drv_dispatchType(IRP_MJ_DEVICE_CONTROL) NTSTATUS tinyOpCPU_DeviceControl(IN PD
 		case IOCTL_WRITE_IO_PORT:
 		{
 			oper_io_write(pfdo, &inBufferLength, ioBuffer, &outBufferLength, ioBuffer);
+			ntstatus = STATUS_SUCCESS;
+			break;
+		}
+		case IOCTL_READ_MEMORY:
+		{
+			oper_read_memory(pfdo, &inBufferLength, ioBuffer, &outBufferLength, ioBuffer);
 			ntstatus = STATUS_SUCCESS;
 			break;
 		}
