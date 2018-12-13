@@ -46,7 +46,7 @@ extern "C" {
 
 #endif
 
-
+#define TINYOPCPU_GP 0x80000001
 
 //typedef unsigned long ULONGLONG;
 #ifndef _DATAVALUE_
@@ -92,6 +92,31 @@ extern "C" {
 	typedef struct {
 		UCHAR		value[1];
 	} PACKET_MEM_READ_REPLY;
+
+	/*
+	* IOCTL_MSR_READ
+	*/
+	typedef struct {
+		ULONG		cpu;					//which CPU to execute on
+		ULONG		msr;
+	} PACKET_CPU_MSR_READ;
+	typedef struct {
+		ULONG		gp;
+		ULONGLONG	data;
+	} PACKET_CPU_MSR_READ_REPLY;
+
+	/*
+	* IOCTL_MSR_WRITE
+	*/
+	typedef struct {
+		ULONG		cpu;					//which CPU to execute on
+		ULONG		msr;
+		ULONGLONG   data;
+	} PACKET_CPU_MSR_WRITE;
+	typedef struct {
+		ULONG		gp;
+		ULONGLONG	data;
+	} PACKET_CPU_MSR_WRITE_REPLY;
 #ifdef  __cplusplus
 }
 #endif

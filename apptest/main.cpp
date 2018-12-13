@@ -44,6 +44,14 @@ int main()
 	}
 	*/
 	cout << endl;
+	cout << "read msr 8b" << endl;
+	unsigned  long long msrdata = 0;
+	TinyOpCPU_ReadMsr(0,0x8b,&msrdata);
+	cout << "msr 8b value : " << 0x0+msrdata << endl;
+	cout << endl;
+	msrdata = 0x2897289728973097;
+	TinyOpCPU_WriteMsr(0,0x199,&msrdata);
+	cout << "write msr 198 : " << msrdata << endl;
 	TinyOpCPU_Delete();
 	system("pause");
 	return 0;

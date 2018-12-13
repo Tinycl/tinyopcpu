@@ -52,6 +52,7 @@ NTSTATUS oper_io_write(PDEVICE_EXTENSION pfdo, ULONG *incount, PACKET_IO_WRITE *
 NTSTATUS oper_read_memory(PDEVICE_EXTENSION pfdo, ULONG *incount,PACKET_MEM_READ *in, ULONG *outcount, UCHAR *out)
 {
 	//PUCHAR dst = (PUCHAR)&out->value[0]; PACKET_MEM_READ_REPLY
+	UNREFERENCED_PARAMETER(pfdo);
 	PUCHAR dst = out;
 	ULONG datalen = in->count;
 	switch (in->AddressSpace) {
@@ -102,5 +103,60 @@ NTSTATUS oper_read_memory(PDEVICE_EXTENSION pfdo, ULONG *incount,PACKET_MEM_READ
 		default:
 			return STATUS_INVALID_PARAMETER;
 	}
+	return STATUS_SUCCESS;
+}
+
+NTSTATUS oper_read_msr(PDEVICE_EXTENSION pfdo, ULONG *incount, PACKET_CPU_MSR_READ *in, ULONG *outcount, PACKET_CPU_MSR_READ_REPLY *out)
+{
+	UNREFERENCED_PARAMETER(pfdo);
+	if (in->cpu >= (unsigned)KeNumberProcessors) {
+		return STATUS_INVALID_PARAMETER;
+	}
+	KeSetSystemAffinityThread((KAFFINITY)(1 << in->cpu));
+	out->gp = 1;
+	__try
+	{
+		out->data = __readmsr(in->msr);
+		out->gp = 0;
+	}
+	__except (EXCEPTION_EXECUTE_HANDLER)
+	{
+		out->data = 0xDEADDEAD;
+		out->gp = 1;
+	}
+	KeRevertToUserAffinityThread();
+	*outcount = sizeof(PACKET_CPU_MSR_READ_REPLY);
+	return STATUS_SUCCESS;
+
+}
+
+NTSTATUS oper_write_msr(PDEVICE_EXTENSION pfdo, ULONG *incount, PACKET_CPU_MSR_WRITE *in, ULONG *outcount, PACKET_CPU_MSR_WRITE_REPLY *out)
+{
+	UNREFERENCED_PARAMETER(pfdo);
+	if (in->cpu >= (unsigned)KeNumberProcessors) {
+		return STATUS_INVALID_PARAMETER;
+	}
+	KeSetSystemAffinityThread((KAFFINITY)(1 << in->cpu));
+	out->gp = 1;
+	__try
+	{
+		__writemsr(in->msr, in->data);
+		out->gp = 0;
+	}
+	__except (EXCEPTION_EXECUTE_HANDLER)
+	{
+		out->data = 0xDEADDEAD;
+		out->gp = 1;
+	}
+	__try
+	{
+		out->data = __readmsr(in->msr);
+	}
+	__except (EXCEPTION_EXECUTE_HANDLER)
+	{
+
+	}
+	KeRevertToUserAffinityThread();
+	*outcount = sizeof(PACKET_CPU_MSR_WRITE_REPLY);
 	return STATUS_SUCCESS;
 }

@@ -372,3 +372,52 @@ ULONG TinyOpCPU_ReadVirtual(ULONGLONG virtaddr, ULONG count, UCHAR *buf)
 {
 	return(TinyOpCPU_ReadMemory(1, virtaddr, count, buf));
 }
+
+ULONG TinyOpCPU_ReadMsr(ULONG cpu, ULONG msr, ULONGLONG *data)
+{
+	BOOL error;
+	DWORD ByteReturned;
+	PACKET_CPU_MSR_READ req;
+	PACKET_CPU_MSR_READ_REPLY reply;
+
+	req.cpu = cpu;
+	req.msr = msr;
+	error = DeviceIoControl(TinyOpCPU_Handle,
+							IOCTL_READ_MSR,
+							&req,
+							sizeof(PACKET_CPU_MSR_READ),
+							&reply,
+							sizeof(PACKET_CPU_MSR_READ_REPLY),
+							&ByteReturned,
+							NULL);
+	if (reply.gp) {
+		return TINYOPCPU_GP;
+	}
+	*data = reply.data;
+	return error;
+}
+
+ULONG TinyOpCPU_WriteMsr(ULONG cpu, ULONG msr, ULONGLONG *data)
+{
+	BOOL error;
+	DWORD ByteReturned;
+	PACKET_CPU_MSR_WRITE req;
+	PACKET_CPU_MSR_WRITE_REPLY reply;
+
+	req.cpu = cpu;
+	req.msr = msr;
+	req.data = *data;
+	error = DeviceIoControl(TinyOpCPU_Handle,
+							IOCTL_WRITE_MSR,
+							&req,
+							sizeof(PACKET_CPU_MSR_WRITE),
+							&reply,
+							sizeof(PACKET_CPU_MSR_WRITE_REPLY),
+							&ByteReturned,
+							NULL);
+	if (reply.gp) {
+		return TINYOPCPU_GP;
+	}
+	*data = reply.data;
+	return error;
+}

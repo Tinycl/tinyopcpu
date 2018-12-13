@@ -24,6 +24,8 @@ extern "C" {
 	ULONG TinyOpCPU_ReadMemory(ULONG AddressSpace, ULONGLONG Address, ULONG count, UCHAR *buf);
 	ULONG TinyOpCPU_ReadPhysMemory(ULONGLONG physaddr, ULONG count, UCHAR *buf);
 	ULONG TinyOpCPU_ReadVirtual(ULONGLONG virtaddr, ULONG count, UCHAR *buf);
+	ULONG TinyOpCPU_ReadMsr(ULONG cpu, ULONG msr, ULONGLONG *data);
+	ULONG TinyOpCPU_WriteMsr(ULONG cpu, ULONG msr, ULONGLONG *data);
 #ifdef __cplusplus
 }
 #endif

@@ -83,8 +83,7 @@ __drv_dispatchType(IRP_MJ_DEVICE_CONTROL) NTSTATUS tinyOpCPU_DeviceControl(IN PD
 	PDEVICE_EXTENSION pfdo;
 
 	DbgPrint("tiny IoToolDeviceControl \n");
-
-	ioBuffer = pIrp->AssociatedIrp.SystemBuffer;  //用户空间内核空间共享缓冲区（作为输入输出）
+	ioBuffer = pIrp->AssociatedIrp.SystemBuffer;  //systembuffer 作为输入输出缓冲区
 	irpStack = IoGetCurrentIrpStackLocation(pIrp);
 	inBufferLength = irpStack->Parameters.DeviceIoControl.InputBufferLength;
 	outBufferLength = irpStack->Parameters.DeviceIoControl.OutputBufferLength;
@@ -107,6 +106,18 @@ __drv_dispatchType(IRP_MJ_DEVICE_CONTROL) NTSTATUS tinyOpCPU_DeviceControl(IN PD
 		case IOCTL_READ_MEMORY:
 		{
 			oper_read_memory(pfdo, &inBufferLength, ioBuffer, &outBufferLength, ioBuffer);
+			ntstatus = STATUS_SUCCESS;
+			break;
+		}
+		case IOCTL_READ_MSR:
+		{
+			oper_read_msr(pfdo, &inBufferLength, ioBuffer, &outBufferLength, ioBuffer);
+			ntstatus = STATUS_SUCCESS;
+			break;
+		}
+		case IOCTL_WRITE_MSR:
+		{
+			oper_write_msr(pfdo, &inBufferLength, ioBuffer, &outBufferLength, ioBuffer);
 			ntstatus = STATUS_SUCCESS;
 			break;
 		}
